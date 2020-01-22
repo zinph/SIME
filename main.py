@@ -1,8 +1,9 @@
 #-------------------------------------------------------------------------------
-# Name:        module1
-# Purpose:
+# Name:        SIME
+# Purpose:     Scaffold-based enumeration method/software to design in-silico macrolide libraries
+
 #
-# Author:      kzphy
+# Author:      zinph
 #
 # Created:     27/02/2019
 # Copyright:   (c) kzphy 2019
@@ -20,12 +21,12 @@ def convert_time(second):
     second = round((minute - int(minute))*60,4)
     return(str(int(day)) + ' DAYS: '+ str(int(hour)) + ' HOURS: '+ str(int(minute)) + ' MINUTES: ' + str(second) + ' SECONDS')
 
-from PKS_Enumerator import *
+from SIME import *
 
 #ERY_core = 'CC[C@H]1OC(=O)[*][*sugar*][*][*sugar*][*]C[*]C(=O)[*][C@@H](O)[*]1'
 ERY_core = 'CC[C@H]1OC(=O)[*][*sugar*][C@H](C)[*sugar*][*]C[*]C(=O)[*][C@@H](O)[*]1'
 
-sample = PKS_Enumerator()
+sample = SIME()
 start_time = time.time()
 sample.generate_templates_withExtendersNSugars(ERY_core)
 duration = convert_time(time.time()-start_time)

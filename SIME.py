@@ -22,7 +22,7 @@ from collections import Counter, defaultdict
 from rdkit.Chem.Scaffolds import MurckoScaffold
 from operator import itemgetter
 
-class PKS_Enumerator:
+class SIME:
 
     def __init__(self):
 
@@ -82,10 +82,6 @@ class PKS_Enumerator:
         self.info_manager.write('\n\nStructural Motifs\n'+'\n'.join(original_extenders)+'\n')
         self.info_manager.close()
 
-
-
-    def load_macrolide_cores(self):
-        pass
 
     def make_full_sugar_list(self):
         '''
