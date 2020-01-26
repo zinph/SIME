@@ -12,6 +12,7 @@
 import os
 import re
 import os.path
+import datetime
 from molvs import standardize_smiles
 from random import *
 from rdkit import Chem
@@ -24,61 +25,67 @@ from operator import itemgetter
 
 class SIME:
 
-    def __init__(self):
+    def __init__(self, structural_motifs_file, sugars_file, max_repeat_motifs, minimal_sugars, library_size, enumerate_all_SMs, enumerate_all_sugars):
 
 ##        self.info = {}  # to record number of compounds for each length
-        self.total_numcompounds = 0
-        self.load_sugars()
-        self.load_extenders()
-        self.library_size       = int(input('Desired Library Size (numbers only) :'))
-
-##        self.SM_info = {}
-        self.smile_file_name    = self.create_directory()+'/mcrl'
-        self.max_repeat         = int(input('Maximum occurrence of the same structural motifs per scaffold (number only) :'))
-        self.min_sugar          = int(input('Minimal number of sugars per scaffold (number only) :'))
-        self.ext_question = input('Generate all possible stereocenters for extender structural motifs at joining carbons? y or n :')
-        self.sugar_question = input('Generate all possible stereocenters for sugars at joining carbons? y or n :')
-
+        self.total_numcompounds      = 0
+        self.structural_motifs_file  = structural_motifs_file
+        self.sugars_file             = sugars_file
+        self.max_repeat_motifs       = max_repeat_motifs
+        self.minimal_sugars          = minimal_sugars
+        self.library_size            = library_size
+        self.enumerate_all_SMs       = enumerate_all_SMs
+        self.enumerate_all_sugars    = enumerate_all_sugars
+        date_stamp                   = datetime.datetime.utcnow().strftime("%Y-%m-%d-%H-%M-%S")
+        self.smile_file_name         = 'LIBRARIES/'+date_stamp+'_mcrl'
 
         self.info_manager = open(self.smile_file_name + '_info','a+')
-        self.info_manager.write('Desired Library Size (numbers only) :'+ self.library_size + '\n')
-        self.info_manager.write('Maximum occurrence of the same structural motifs per scaffold (number only) :'+ str(self.max_repeat) + '\n')
-        self.info_manager.write('Minimal number of sugars per scaffold (number only) :'+ str(self.min_sugar) + '\n')
-        self.info_manager.write('Generate all possible stereocenters for extender structural motifs at joining carbons? y or n :y'+ self.ext_question + '\n')
-        self.info_manager.write('Generate all possible stereocenters for sugars at joining carbons? y or n :' + self.sugar_question + '\n')
+        self.info_manager.write(f'Desired Library Size (numbers only) : {self.library_size}\n')
+        self.info_manager.write(f'Maximum occurrence of the same structural motifs per scaffold (number only) : {self.max_repeat_motifs}\n')
+        self.info_manager.write(f'Minimal number of sugars per scaffold (number only) :{self.minimal_sugars}\n')
+        self.info_manager.write(f'Generate all possible stereocenters for extender structural motifs at joining carbons? {self.enumerate_all_SMs}\n')
+        self.info_manager.write(f'Generate all possible stereocenters for sugars at joining carbons? {self.enumerate_all_sugars}\n')
 
-    def create_directory(self):
-        old_directory = os.getcwd()
-        newfolder = input('Peferred Directory Name for Output Files: ')
-        new_directory = os.path.join(old_directory, newfolder)
-        while os.path.exists(new_directory):
-            print('This folder exists or input is invalid. Try again.')
-            newfolder = input('Peferred Directory Name for Output Files: ')
-            new_directory = os.path.join(old_directory,newfolder)
-        os.mkdir(new_directory)
-        return new_directory
+        self.load_sugars()
+        self.load_extenders()
 
+    # def create_directory(self):
+    #     old_directory = os.getcwd()
+    #     newfolder = input('Peferred Directory Name for Output Files: ')
+    #     new_directory = os.path.join(old_directory, newfolder)
+    #     while os.path.exists(new_directory):
+    #         print('This folder exists or input is invalid. Try again.')
+    #         newfolder = input('Peferred Directory Name for Output Files: ')
+    #         new_directory = os.path.join(old_directory,newfolder)
+    #     os.mkdir(new_directory)
+    #     return new_directory
 
     def load_sugars(self):
-        f = open('Data/sugars','r')
-        original_sugars = f.read().splitlines()
-        if self.sugar_question.lower() == 'no' or self.sugar_question.lower() == 'n':
-            self.sugars = [r.replace('[*R*]','') for r in original_sugars]
+        if self.sugars_file == None:
+            with open('Data/sugars', 'r') as f:
+                original_sugars = f.read().splitlines()
         else:
+            original_sugars = self.sugars_file.read().splitlines()
+        if self.enumerate_all_sugars.lower() == 'yes':
             sugars = []
             for i in original_sugars:
                 sugars.append(self.ENUMERATE_sugar_stereocenters(i))
             self.sugars = [r.replace('[*R*]','') for r in list(chain(*sugars))]
+        else:
+            self.sugars = [r.replace('[*R*]','') for r in original_sugars]
         self.make_full_sugar_list() # make self.full_list by adding hydroxyl to self.sugars
         self.info_manager.write('\n\nSugars\n'+'\n'.join(original_sugars)+'\n')
 
     def load_extenders(self):
-        f = open('Data/selected_extenders.txt','r')
-        original_extenders = f.read().splitlines()
-        if self.ext_question.lower() == 'no' or self.ext_question.lower() == 'n':
-             self.extenders = [r.replace('[*R*]','') for r in original_extenders]
+        if self.structural_motifs_file == None:
+            with open('Data/selected_extenders.txt','r') as f:
+                original_extenders = f.read().splitlines()
         else:
+            original_extenders = self.structural_motifs_file.read().splitlines()
+        if self.enumerate_all_SMs.lower() == 'yes':
             self.extenders = [r.replace('[*R*]','') for r in self.enumerate_SM_stereocenters(original_extenders)]
+        else:
+            self.extenders = [r.replace('[*R*]','') for r in original_extenders]
         self.info_manager.write('\n\nStructural Motifs\n'+'\n'.join(original_extenders)+'\n')
         self.info_manager.close()
 
@@ -87,7 +94,7 @@ class SIME:
         '''
         self.full_list contains all the sugars and hydroxyl groups.
         '''
-        hydroxyl = ['[C@H](O)','[C@@H](O)']
+        hydroxyl = ["[C@H](O)","[C@@H](O)"]
         self.full_list = self.sugars.copy()
         self.full_list += hydroxyl # contains all sugars and hydroxyl groups
 
@@ -96,10 +103,9 @@ class SIME:
         '''
         Take in sugar strings that start and end with [*R*], and return a list of sugars with two different stereoceters for the joining carbon.
         '''
-
         sugar_stereocenters = []
         # if the stereocenter of the joining carbon isn't defined
-        if smile[5] is 'C':
+        if smile[5] is "C":
 #            template = smile[0:5] + '[C@H]' + smile[6:]
             template = smile.replace(smile[5], "[C@@H]", 1)
             sugar_stereocenters.append(template)
@@ -109,48 +115,51 @@ class SIME:
             sugar_stereocenters.append(smile)
             if "@" in smile[:10]:
                 if "@@" in smile[:10]:   # for clockwise
-                    template = smile.replace('@@', '@', 1)
+                    template = smile.replace("@@", "@", 1)
                 else:
-                    template = smile.replace('@', '@@', 1)
+                    template = smile.replace("@", "@@", 1)
                 sugar_stereocenters.append(template)
         return sugar_stereocenters
 
 
-    def locate_SM_replace_points(self, smile):
+    def remove_SM_digits(self, smile):
         '''
-        Take a string, and locate places for replacement. They are indicated by [1*], [2*], etc.... Return the string with all these joints replaced with [*]s.
+        Take a string, and locate places for replacement. They are indicated by [1*], [2*], etc....
+        Return the string with all these joints replaced with [*]s.
         '''
         numbers = set(re.findall(r'\d+', smile))
-        possible_joints = ['['+str(m) +'*]' for m in numbers]
+        possible_joints = ["["+str(m) +"*]" for m in numbers]
         for each in possible_joints:
-            smile = smile.replace(each, '[*]')
+            smile = smile.replace(each, "[*]")
         return smile
 
-    def generate_templates_withextenders(self, smile):
-        '''
-        Generate all possible templates. Takes in a smile string (structural core). This function only deals with extenders or structural motifs.
-        Then, insert all possible extenders at those joint positions.
-        '''
-        smile_with_stars = [[r] for r in self.locate_SM_replace_points(smile).split('[*]')]  # take a string with [*]s and split into different fragments, convert each fragment into a list
-        counter = 1
-        # smile_with_stars = [ fragment1, fragment2, fragment3 ,...] all are split at joint positions
-        # insert self.extenders in between all fragments (except for the first and last blocks).
-        # so it will be something like [fragment1, [self.extenders], fragment2, [self.extenders], fragment3, [self.extenders] ,...]
-        for i in range(len(smile_with_stars)-1):
-            shuffle(self.extenders)
-            smile_with_stars.insert(counter,self.extenders)
-            counter+=2
-
-        template = [x for x in smile_with_stars if x != ['']]
-        self.make_compounds(template)
-        return template
-
+    # def generate_templates_withextenders(self, smile):
+    #     '''
+    #     Generate all possible templates. Takes in a smile string (structural core).
+    #     This function only deals with extenders or structural motifs.
+    #     Then, insert all possible extenders at those joint positions.
+    #     '''
+    #     smile_with_stars = [[r] for r in self.remove_SM_digits(smile).split('[*]')]  # take a string with [*]s and split into different fragments, convert each fragment into a list
+    #     counter = 1
+    #     # smile_with_stars = [ fragment1, fragment2, fragment3 ,...] all are split at joint positions
+    #     # insert self.extenders in between all fragments (except for the first and last blocks).
+    #     # so it will be something like [fragment1, [self.extenders], fragment2, [self.extenders], fragment3, [self.extenders] ,...]
+    #     for i in range(len(smile_with_stars)-1):
+    #         shuffle(self.extenders)
+    #         smile_with_stars.insert(counter,self.extenders)
+    #         counter+=2
+    #
+    #     template = [x for x in smile_with_stars if x != ['']]
+    #     self.make_compounds(template)
+    #     return template
 
     def generate_templates_withExtendersNSugars(self,smile):
         '''
-
+        Generate all possible templates. Takes in a smile string (structural core).
+        This function deals with both structural motifs and sugars.
+        Then, insert all possible SMs and sugars at those joint positions.
         '''
-        smile_with_stars = self.string_splitter(self.locate_SM_replace_points(smile), '[*]')
+        smile_with_stars = self.string_splitter(self.remove_SM_digits(smile), '[*]')
         template = []
         # create a template holder that will have a list of extenders or sugars at the respective split location points and the rest of the core will remain the same.
         # The position of all these fragments (core, extenders, sugars) have to be in the correct order.
@@ -166,40 +175,74 @@ class SIME:
 
         template = [x for x in template if x != ['']]  # [stable_fragment1, [possible extender motifs], stable_fragment2, [possible sugar moieties], ...]
         SM_template = self.insert_SMs(template)  # a list of possible extenders inserted at SM locations
-        SGR_order = self.generate_dummy_sugar_templates(SM_template,minimal_sugars=self.min_sugar)  # At least how many sugars do you want in the macrolide scaffold? because of this, more complications.
+        SGR_order = self.generate_dummy_sugar_templates(SM_template,minimal_sugars=self.minimal_sugars)  # At least how many sugars do you want in the macrolide scaffold? because of this, more complications.
 
         for each in SGR_order:
-            current_SYMBOLsugar_template = self.add_SYMBOLsugars_to_dummy_templates(each,SM_template) # add the lists of sugars and full_list at the dummy positions
+            current_SYMBOLsugar_template = self.replace_SYMBOLsugars_with_dummies(each,SM_template) # add the lists of sugars and full_list at the dummy positions
             current_sugar_template = self.insert_sugars_to_dummies(current_SYMBOLsugar_template)
             self.make_compounds(current_sugar_template)
 
-
-
-    def make_compounds(self,template):
-        written = []
+    def make_compounds(self, template):
+        max_per_file = 1000000
         file_counter = 1
-        file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles' # attempts to split files because they get too large. Name of the first file will be "file_" + this variable
-        file_handler = open(file_temp,'a+')
+        written      = []
         for item in product(*template):
-            if self.max_occurrence(list(item))[1] <= self.max_repeat: # If the count of most common SM is less than or equal to the number set up by the user
-
-                if self.total_numcompounds <= self.library_size:
-                    if len(written) < 1000000:
+            if self.max_occurrence(list(item))[1] <= self.max_repeat_motifs: # If the count of most common SM is less than or equal to the number set up by the user
+                if self.library_size <= max_per_file:
+                    if self.total_numcompounds <= self.library_size:
                         temp = ''.join([str(r) for r in item])
-                        m = Chem.MolFromSmiles(temp)
                         self.total_numcompounds += 1
                         written.append(temp)
                     else:
-                        file_handler.write('\n'.join(written))  # write smiles in written list
-                        file_handler.close()
-                        file_counter +=1
-                        file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles'
-                        file_handler = open(file_temp,'a+')
-                        written = []
-                else:
-                    break
-                    file_handler.close()
-        file_handler.close()
+                        self.write_to_file(written, file_counter)
+                        break
+                elif self.library_size > max_per_file:
+                    if self.total_numcompounds <= self.library_size:
+                        if len(written) <= max_per_file:
+                            temp = ''.join([str(r) for r in item])
+                            self.total_numcompounds += 1
+                            written.append(temp)
+                        else:
+                            self.write_to_file(written, file_counter)
+                            file_counter +=1
+                            written = []
+                    else:
+                        break
+
+    def write_to_file(self, compound_list, file_counter):
+        '''
+        When total compound is 1000000 or library size, this function will be called
+        to write compounds to file.
+        '''
+        print(compound_list)
+        file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles' # attempts to split files because they get too large. Name of the first file will be "file_" + this variable
+        with open(file_temp,'a+') as file_handler:
+            file_handler.write('\n'.join(compound_list))
+
+    # def make_compounds(self,template):
+    #     written = []
+    #     file_counter = 1
+    #     file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles' # attempts to split files because they get too large. Name of the first file will be "file_" + this variable
+    #     file_handler = open(file_temp,'a+')
+    #     for item in product(*template):
+    #         if self.max_occurrence(list(item))[1] <= self.max_repeat_motifs: # If the count of most common SM is less than or equal to the number set up by the user
+    #             if self.total_numcompounds <= self.library_size:
+    #                 if len(written) < 1000000:
+    #                     temp = ''.join([str(r) for r in item])
+    #                     # m = Chem.MolFromSmiles(temp)
+    #                     self.total_numcompounds += 1
+    #                     written.append(temp)
+    #                 else:
+    #                     file_handler.write('\n'.join(written))
+    #                     file_handler.close()
+    #                     file_counter +=1
+    #                     file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles'
+    #                     file_handler = open(file_temp,'a+')
+    #                     written = []
+    #             else:
+    #                 file_handler.write('\n'.join(written))  # write smiles in written list
+    #                 break
+    #     file_handler.close()
 
 
     def RS_check(self,smile,ringsize):
@@ -301,10 +344,9 @@ class SIME:
         n = the least number of sugars the users want in each macrolide.
         Default is one, i.e. there will be at least one sugar in each macrolide.
         Generate a list of all possible templates using dummys as 'SUGARS' (intended for only sugars) and 'FULL_LIST (intended for sugars + hydroxy).'
-
         '''
         num_sugars = template.count(['[*sugar*]'])
-        list_with_atLeast_nSugars = n*['SUGARS']+(num_sugars-n)*['FULL_LIST']  # Make a new list with at least "n" "SUGARS" and the rest "FULL_LIST"
+        list_with_atLeast_nSugars = minimal_sugars*['SUGARS']+(num_sugars-minimal_sugars)*['FULL_LIST']  # Make a new list with at least "n" "SUGARS" and the rest "FULL_LIST"
         sugar_lists_in_order = [] # make a new list to hold all possible sugar templates at each position
         # now create all different arrangements of sugars, full_list. The positions of these blocks matter.
         for i in permutations(list_with_atLeast_nSugars):
@@ -313,7 +355,7 @@ class SIME:
         return sugar_lists_in_order
 
 
-    def add_SYMBOLsugars_to_dummy_templates(self, sugar_dummy_order,template_with_sugarinlist):
+    def replace_SYMBOLsugars_with_dummies(self, sugar_dummy_order,template_with_sugarinlist):
         '''
         each sugar_dummy_order looks like ('SUGARS', 'FULL_LIST', 'FULL_LIST', 'FULL_LIST')
         template_with_sugarinlist looks like = [['1'], [ext1,ext2,...], ['2'],['[*sugar*]'],['3'], [ext1,ext2,...], ['[*sugar*]'],['4'], [ext1,ext2,...], ['5'], [ext1,ext2,...], ['6']]

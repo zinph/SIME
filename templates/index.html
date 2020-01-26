@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/main_page.css') }}">
+    <title></title>
+  </head>
+  <body>
+    <form class="app-form" enctype=multipart/form-data action="{{url_for('collect_data')}}" method="post">
+      <div class="upper-part">
+        <label class="color-label" for="macrolide_core">Upload Macrolide Core</label>
+        <input type="file" name="macrolide_core" value="">
+        <br>
+
+        <label class="color-label" for="structural_motifs_file">Upload Structural Motifs</label>
+        <input type="file" name="structural_motifs_file" value="">
+        <br>
+
+        <label class="color-label" for="sugars_file">Upload Sugars</label>
+        <input type="file" name="sugars_file" value="">
+        <br>
+      </div>
+
+      <div class="more-options">
+        <label class="color-label more_options_label">More Options</label>
+        <br>
+
+        <div class="more-options-settings">
+          <label for="max_repeat_motifs"># Maximal Repeat for Structural Motifs</label>
+          <input type="number" name="max_repeat_motifs" value="2">
+          <br>
+        </div>
+
+        <div class="more-options-settings">
+          <label for="minimal_sugars">Minimal # of sugars</label>
+          <input type="number" name="minimal_sugars" value="1">
+          <br>
+        </div>
+
+        <div class="more-options-settings">
+          <label for="library_size">Library Size</label>
+          <input type="number" name="library_size" value="10">
+          <br>
+        </div>
+
+        <div class="more-options-settings">
+          <input type="checkbox" name="enumerate_all_SMs" value="yes"> enumerate all possible sterocenters for SMs<br>
+        </div>
+
+        <div class="more-options-settings">
+          <input type="checkbox" name="enumerate_all_sugars" value="yes"> enumerate all possible sterocenters for sugars<br>
+        </div>
+      </div>
+
+      <input type="submit" name="" value="submit">
+    </form>
+  </body>
+</html>

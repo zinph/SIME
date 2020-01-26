@@ -1,0 +1,74 @@
+body {
+  padding: 20px;
+}
+.app-form {
+  display: flex;
+  /**width: 40%;**/
+}
+
+.color-label {
+  color: #ffffff;
+  background-color: #838383;
+  padding: 10px;
+  border: 1px solid #CCC;
+  display: flex;
+  text-align: center;
+}
+
+.more-options {
+  padding: 10px;
+  border: 1px solid #CCC;
+}
+
+.more_options_label {
+  position: relative;
+  display:flex;
+  top:-30px;
+  left: auto;
+  width: 150px;
+  text-align: center;
+  border: 1px solid #CCC;
+
+  /**background-color:white;**/
+}
+
+.more-options-settings {
+  border: 1px solid #CCC;
+}
+
+.upper-part {
+  padding:25px;
+}
+
+label {
+  /* To make sure that all labels have the same size and are properly aligned */
+  display: inline-block;
+  width: 300px;
+  text-align: left;
+}
+
+textarea {
+  /* To make sure that all text fields have the same font settings
+     By default, textareas have a monospace font */
+  font: 1em sans-serif;
+
+  /* To give the same size to all text fields */
+  width: 75px;
+  box-sizing: border-box;
+
+  /* To harmonize the look & feel of text field border */
+  border: 1px solid #999;
+}
+
+input:focus, textarea:focus {
+  /* To give a little highlight on active elements */
+  border-color: #00B3FF;
+}
+
+textarea {
+  /* To properly align multiline text fields with their labels */
+  vertical-align: top;
+
+  /* To give enough room to type some text */
+  height: 5em;
+}

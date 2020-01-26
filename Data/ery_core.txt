@@ -1,0 +1,1 @@
+CC[C@H]1OC(=O)[*][*sugar*][C@H](C)[*sugar*][*]C[*]C(=O)[*][C@@H](O)[*]1

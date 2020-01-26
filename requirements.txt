@@ -1,0 +1,17 @@
+certifi==2019.11.28
+Click==7.0
+Flask==1.1.1
+itsdangerous==1.1.0
+Jinja2==2.10.3
+MarkupSafe==1.1.1
+MolVS==0.1.1
+numpy==1.17.5
+olefile==0.46
+pandas==0.25.3
+Pillow==7.0.0
+pycairo==1.19.0
+python-dateutil==2.8.1
+pytz==2019.3
+six==1.14.0
+Werkzeug==0.16.0
+wincertstore==0.2
