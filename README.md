@@ -25,4 +25,10 @@ Start Flask server :
 python server.py
 ```
 
-Then go to localhost:5000 on the browser to load GUI.
+Then type the following link on the browser to load GUI.
+
+[localhost:5000](http://localhost:5000)
+
+Select the parameters according to what you need for your chemical library. Select Submit to generate.
+
+The resulting files will found in LIBRARIES folder with the time stamp in the file names.
