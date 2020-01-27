@@ -214,7 +214,6 @@ class SIME:
         When total compound is 1000000 or library size, this function will be called
         to write compounds to file.
         '''
-        print(compound_list)
         file_temp = self.smile_file_name + '_'+str(file_counter)+'.smiles' # attempts to split files because they get too large. Name of the first file will be "file_" + this variable
         with open(file_temp,'a+') as file_handler:
             file_handler.write('\n'.join(compound_list))

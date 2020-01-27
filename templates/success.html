@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <p>
+      Time Elapsed for Enumeration: {{duration}}.<br>
+      Your chemical libraries have been generated.<br>
+      Please check in LIBRARIES folder. The resulting files for info and smiles should be there.
+    </p>
+    <form class="" action="{{url_for('main_page')}}" method="get">
+      <input type="submit" name="" value="Go back to Main Page">
+
+    </form>
+    <!-- <button type="submit" name="button" onclick="{{url_for('main_page')}}" value="Go to Main Menu"></button> -->
+  </body>
+</html>

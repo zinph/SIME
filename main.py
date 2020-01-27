@@ -23,6 +23,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def main_page():
     return render_template('index.html')
 
+@app.route('/success')
+def success_page(duration):
+    return render_template('success.html', duration=duration)
+
 @app.route('/collect_data',methods=['POST'])
 def collect_data():
     form_data              = request.form
@@ -73,11 +77,8 @@ def collect_data():
     start_time = time.time()
     sample.generate_templates_withExtendersNSugars(smile)
     duration = convert_time(time.time()-start_time)
-    f'Time Elapsed for Enumeration: {duration}'
 
-    return f'''Time Elapsed for Enumeration: {duration}.
-    Your chemical libraries have been generated.
-    Please check in LIBRARIES folder. The resulting files for info and smiles should be there.'''
+    return success_page(duration)
     #return form_data, form_files
 
 def convert_time(second):
