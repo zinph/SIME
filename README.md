@@ -1,17 +1,17 @@
-# PKS Enumerator V2
+# SIME
 
-HTML GUI for PKS enumerator V2 and flask.
+HTML GUI for SIME and flask.
 
 ## Setup
 For better results, create a conda environment and activate it like:
 
 ```sh
-conda create -n v2pks python
+conda create -n SIME python
 ```
 
 then:
 ```sh
-conda activate v2pks
+conda activate SIME
 ```
 
 Then install all needed dependencies from `requirements.txt` in the following way:
@@ -22,13 +22,13 @@ pip install -r requirements.txt
 ## How to Use
 Start Flask server :
 ```sh
-python server.py
+python main.py
 ```
 
-Then type the following link on the browser to load GUI.
+Then type the following line in your browser to load SIME software GUI.
 
 [localhost:5000](http://localhost:5000)
 
-Select the parameters according to what you need for your chemical library. Select Submit to generate.
+Use the parameters as needed, and click **Submit** to generate your *in-silico* library of fully assembled macrolides.
 
-The resulting files will found in LIBRARIES folder with the time stamp in the file names.
+The resulting info file and smile file(s) will be found in LIBRARIES folder with the time stamp within the file names. 
