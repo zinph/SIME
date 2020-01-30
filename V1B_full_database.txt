@@ -1,2 +1,3 @@
-Link to V1B folder (smiles), along with descriptor folder containing 1M stratified samples: https://drive.google.com/drive/folders/1LQPlM6QrfumfKpoq5XVhKheX3HCLV4Ns?usp=sharing
-The total folder size is 162 GB.  
+Link to V1B folder (smiles), along with descriptor folder containing 1M stratified samples: <a>https://drive.google.com/drive/folders/1LQPlM6QrfumfKpoq5XVhKheX3HCLV4Ns?usp=sharing </a>
+
+The total folder size is 162 GB.
