@@ -2,7 +2,7 @@ certifi==2019.11.28
 Click==7.0
 Flask==1.1.1
 itsdangerous==1.1.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 MolVS==0.1.1
 numpy==1.17.5
