@@ -5,7 +5,7 @@ itsdangerous==1.1.0
 Jinja2==2.10.3
 MarkupSafe==1.1.1
 MolVS==0.1.1
-numpy==1.17.5
+numpy==1.22.0
 olefile==0.46
 pandas==0.25.3
 Pillow==7.0.0
